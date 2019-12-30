@@ -1,0 +1,18 @@
+{
+  "name": "carpooly",
+  "version": "1.0.0",
+  "description": "Organize carpools on slack.",
+  "main": "index.js",
+  "scripts": {
+    "start": "now dev",
+    "test": "npm test"
+  },
+  "author": "alex haines",
+  "license": "ISC",
+  "devDependencies": {
+    "now": "^16.7.0"
+  },
+  "dependencies": {
+    "mongoose": "^5.8.3"
+  }
+}
