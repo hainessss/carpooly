@@ -7,53 +7,53 @@ client.connect(process.env.MONGO_URI);
 console.log(MongoClient);
 
 module.exports = async (req, res) => {
-  const body = req.body;
+  // const body = req.body;
 
-  const { text, command, user_name } = body;
+  // const { text, command, user_name } = body;
 
-  const parsedText = [];
-  let currentWord = [];
-  let endingSymbol = " ";
+  // const parsedText = [];
+  // let currentWord = [];
+  // let endingSymbol = " ";
 
-  text.split("").forEach(letter => {
-    if (letter === endingSymbol) {
-      endingSymbol = " ";
+  // text.split("").forEach(letter => {
+  //   if (letter === endingSymbol) {
+  //     endingSymbol = " ";
 
-      if (currentWord.length) {
-        parsedText.push(currentWord.join(""));
-      }
+  //     if (currentWord.length) {
+  //       parsedText.push(currentWord.join(""));
+  //     }
 
-      currentWord = [];
-      return;
-    }
+  //     currentWord = [];
+  //     return;
+  //   }
     
-    if (letter === '[') {
-      endingSymbol = ']';
-      return;
-    }
+  //   if (letter === '[') {
+  //     endingSymbol = ']';
+  //     return;
+  //   }
 
-    currentWord.push(letter);
-  });
+  //   currentWord.push(letter);
+  // });
 
-  if (currentWord.length) {
-    parsedText.push(currentWord.join(""));
-  }
+  // if (currentWord.length) {
+  //   parsedText.push(currentWord.join(""));
+  // }
 
-  const [destination, origin, departingAt, seatsAvailable] = parsedText;
+  // const [destination, origin, departingAt, seatsAvailable] = parsedText;
   
-  try {
-    const carpool = await client.create({
-      type: 'Carpool',
-      input: {
-        destination,
-        origin,
-        departingAt,
-        seatsAvailable
-      } 
-    });
-  } catch (err) {
-    console.log('carpool err', err);
-  }
+  // try {
+  //   const carpool = await client.create({
+  //     type: 'Carpool',
+  //     input: {
+  //       destination,
+  //       origin,
+  //       departingAt,
+  //       seatsAvailable
+  //     } 
+  //   });
+  // } catch (err) {
+  //   console.log('carpool err', err);
+  // }
 
   res.status(200).send({
     "blocks": [
@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": `Enter the details of your carpool heading to ${destination} from ${origin}.`
+          "text": `Enter the details of your carpool heading.`
         }
       },
       {
