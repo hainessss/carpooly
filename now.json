@@ -1,4 +1,7 @@
 {
   "version": 2,
-  "name": "carpooly"
+  "name": "carpooly",
+  "env": {
+    "MONGO_URI": "@carpooly-mongo-uri"
+  }
 }

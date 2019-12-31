@@ -1,9 +1,9 @@
-import get from './get';
-import getOne from './getOne';
-import update from './update';
-import create from './create';
+const get = require('./get');
+const getOne = require('./getOne');
+const update = require('./update');
+const create = require('./create');
 
-export default {
+module.exports = {
   get,
   getOne,
   update,

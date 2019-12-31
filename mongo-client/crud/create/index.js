@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-export default ({type, input}) => {
+module.exports = ({type, input}) => {
     let error, Model, instance;
     
     try {
@@ -11,4 +11,4 @@ export default ({type, input}) => {
     }
 
     return error ? Promise.reject(error) : instance.save();
-}
+};

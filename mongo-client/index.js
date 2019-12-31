@@ -1,9 +1,8 @@
-import mongoose from 'mongoose';
-import api from './crud';
+const mongoose = require('mongoose');
+const api = require('./crud');
+const models = require('./models');
 
-const middlewares = [];
 mongoose.Promise = global.Promise;
-const models = mongoose.models;
 
 class MongoClient {
   constructor() {
@@ -63,10 +62,4 @@ class MongoClient {
   }
 }
 
-export {
-  models,
-  api,
-  middlewares
-};
-
-export default MongoClient;
+module.exports = MongoClient;
