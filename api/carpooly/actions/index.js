@@ -40,6 +40,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
 
   const actionId = action.action_id;
   let updatedCarpool;
+  let newPassengers;
 
   switch (actionId) {
     case actionIds.SET_DATE:
@@ -59,7 +60,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
 
       return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
     case actionIds.ADD_PASSENGER:
-      const newPassengers = [...passengers, userId]
+      newPassengers = [...passengers, userId]
 
       if (newPassengers.length > seatsAvailable) {
         return;
@@ -75,7 +76,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
         responseUrl
       });
     case actionIds.REMOVE_PASSENGER:
-      const newPassengers = passengers.filter(id => id !== userId);
+      newPassengers = passengers.filter(id => id !== userId);
 
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
