@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-module.exports = ({ carpool, userId: actionUserId }) => {
+module.exports = ({ carpool, replaceOriginal = false }) => {
   const {
     userId,
     origin,
@@ -12,8 +12,6 @@ module.exports = ({ carpool, userId: actionUserId }) => {
   } = carpool;
 
   const formattedDate = moment(departingDate).format('dddd, MMM Do');
-
-  const isInCar = passengers.includes(actionUserId);
 
   let blocks = [
     {
@@ -32,10 +30,21 @@ module.exports = ({ carpool, userId: actionUserId }) => {
           "action_id": "toggle-passenger",
           "text": {
             "type": "plain_text",
-            "text": `${isInCar ? 'Hop out' : 'Hop in'}`,
+            "text": "Hop in",
             "emoji": true
           },
-          "value": `${isInCar ? 'false' : 'true'}`
+          "value": "true"
+        },
+        {
+          "type": "button",
+          "action_id": "toggle-passenger",
+          "style": "danger",
+          "text": {
+            "type": "plain_text",
+            "text": "Hop out",
+            "emoji": true
+          },
+          "value": "false"
         }
       ]
     }
@@ -51,9 +60,16 @@ module.exports = ({ carpool, userId: actionUserId }) => {
 
   blocks = passengers.length ? [blocks[0], ...passengerBlocks, blocks[1]] : blocks;
 
-  return {
+  const response = {
     "response_type": "in_channel",
-    "delete_original": "true",
     "blocks": blocks
   };
+
+  if (replaceOriginal) {
+    response["replace_original"] = "true";
+  } else {
+    response["delete_original"] = "true";
+  }
+
+  return response;
 };

@@ -48,7 +48,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
         departingDate
       }});
 
-      return respondIfCarpoolComplete({ updatedCarpool, userId, responseUrl });
+      return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
     case actionIds.SET_TIME:
       const departingTime = get(action, 'selected_option.value');
       
@@ -56,7 +56,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
         departingTime
       }});
 
-      return respondIfCarpoolComplete({ updatedCarpool, userId, responseUrl });
+      return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
     case actionIds.TOGGLE_PASSENGER:
       const hoppingOn = get(action, 'value') === "true";
       const newPassengers = hoppingOn 
@@ -71,16 +71,19 @@ const handleAction = async ({ action, userId, responseUrl }) => {
         passengers: newPassengers
       }});
       
-      return respondIfCarpoolComplete({ updatedCarpool, userId, responseUrl });
+      return respondIfCarpoolComplete({
+        updatedCarpool,
+        replaceOriginal: true,
+        responseUrl
+      });
   }
 };
 
-const respondIfCarpoolComplete = async ({ updatedCarpool, userId, responseUrl }) => {
+const respondIfCarpoolComplete = async ({ updatedCarpool, responseUrl, replaceOriginal }) => {
   if (get(updatedCarpool, 'departingTime') && get(updatedCarpool, 'departingDate')) {
-    console.log('responding')
     await fetch(responseUrl, {
       method: 'POST',
-      body: JSON.stringify(carpoolBlock({ carpool: updatedCarpool, userId }))
+      body: JSON.stringify(carpoolBlock({ carpool: updatedCarpool, replaceOriginal }))
     }).then(result => result.json()).then(res => console.log(res)).catch(err => console.log('slack err', err))
   }
 
