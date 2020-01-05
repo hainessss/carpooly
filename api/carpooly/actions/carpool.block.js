@@ -56,7 +56,7 @@ module.exports = ({ carpool, replaceOriginal = false }) => {
       "type": "mrkdwn",
       "text": `<@${userId}> joined this carpool. :seedling: :sparkles:`
     }
-  }))
+  }));
 
   blocks = passengers.length ? [blocks[0], ...passengerBlocks, blocks[1]] : blocks;
 
