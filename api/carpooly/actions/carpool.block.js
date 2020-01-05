@@ -52,7 +52,6 @@ module.exports = ({ carpool, userId: actionUserId }) => {
   blocks = passengers.length ? [blocks[0], ...passengerBlocks, blocks[1]] : blocks;
 
   return {
-    "response_type": "in_channel",
     "replace_original": "true",
     "blocks": blocks
   };
