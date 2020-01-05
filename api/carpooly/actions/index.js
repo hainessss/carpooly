@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
 };
 
 const handleAction = async ({ action, userId, responseUrl }) => {
-  const { _id, passengers } = await getLastCarpool(userId);
+  const { _id, passengers, seatsAvailable } = await getLastCarpool(userId);
 
   const actionId = action.action_id;
   let updatedCarpool;
@@ -61,9 +61,9 @@ const handleAction = async ({ action, userId, responseUrl }) => {
       const hoppingOn = get(action, 'value') === "true";
       const newPassengers = hoppingOn 
         ? [...passengers, userId]
-        : passengers.filter(u => u !== userId);
+        : passengers.filter(id => id !== userId);
 
-      if (newPassengers.length > carpool.seatsAvailable) {
+      if (newPassengers.length > seatsAvailable) {
         return;
       }
 
