@@ -1,125 +1,69 @@
-const MongoClient = require('../../mongo-client');
+const startCase = require('lodash/startCase');
 
-const client = new MongoClient();
+const timePromptBlock = require('./timePrompt.block.js');
+const errorBlock = require('./error.block.js');
+const client = require('../../mongo-client');
 
 client.connect(process.env.MONGO_URI);
 
-console.log(MongoClient);
-
 module.exports = async (req, res) => {
-  // const body = req.body;
+  const body = req.body;
 
-  // const { text, command, user_name } = body;
+  const { text, user_name, user_id } = body;
 
-  // const parsedText = [];
-  // let currentWord = [];
-  // let endingSymbol = " ";
+  try {
+    const [origin, destination, seatsAvailable] = parseCommand({ text });
 
-  // text.split("").forEach(letter => {
-  //   if (letter === endingSymbol) {
-  //     endingSymbol = " ";
-
-  //     if (currentWord.length) {
-  //       parsedText.push(currentWord.join(""));
-  //     }
-
-  //     currentWord = [];
-  //     return;
-  //   }
-    
-  //   if (letter === '[') {
-  //     endingSymbol = ']';
-  //     return;
-  //   }
-
-  //   currentWord.push(letter);
-  // });
-
-  // if (currentWord.length) {
-  //   parsedText.push(currentWord.join(""));
-  // }
-
-  // const [destination, origin, departingAt, seatsAvailable] = parsedText;
-  
-  // try {
-  //   const carpool = await client.create({
-  //     type: 'Carpool',
-  //     input: {
-  //       destination,
-  //       origin,
-  //       departingAt,
-  //       seatsAvailable
-  //     } 
-  //   });
-  // } catch (err) {
-  //   console.log('carpool err', err);
-  // }
-
-  res.status(200).send({
-    "blocks": [
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": `Enter the details of your carpool heading.`
-        }
-      },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "Pick a departure date."
-        },
-        "accessory": {
-          "type": "datepicker",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a date",
-            "emoji": true
-          }
-        }
-      },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "Pick an item from the dropdown list"
-        },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select an item",
-            "emoji": true
-          },
-          "options": [
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "Choice 1",
-                "emoji": true
-              },
-              "value": "value-0"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "Choice 2",
-                "emoji": true
-              },
-              "value": "value-1"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "Choice 3",
-                "emoji": true
-              },
-              "value": "value-2"
-            }
-          ]
-        }
+    await client.create({
+      type: 'Carpool',
+      input: {
+        userName: user_name,
+        userId: user_id,
+        destination,
+        origin,
+        seatsAvailable,
+        passengers: []
       }
-    ]
+    });
+
+    res.status(200).send(timePromptBlock({
+      origin,
+      destination
+    }));
+  } catch (error) {
+    console.log('err', error)
+    res.status(200).send(errorBlock({ error }));
+  }
+};
+
+const parseCommand = ({ text }) => {
+  const parsedText = [];
+  let currentWord = [];
+  let endingSymbol = " ";
+
+  text.split("").forEach(letter => {
+    if (letter === endingSymbol) {
+      endingSymbol = " ";
+
+      if (currentWord.length) {
+        parsedText.push(startCase(currentWord.join("")));
+      }
+
+      currentWord = [];
+      return;
+    }
+
+    if (letter === '[') {
+      endingSymbol = ']';
+      return;
+    }
+
+    currentWord.push(letter);
   });
+
+  if (currentWord.length) {
+    parsedText.push(currentWord.join(""));
+  }
+
+  return parsedText;
 };

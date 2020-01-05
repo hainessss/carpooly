@@ -7,6 +7,7 @@ mongoose.Promise = global.Promise;
 class MongoClient {
   constructor() {
     this.db = null;
+    this.models = models;
   }
 
   get(args) {
@@ -62,4 +63,4 @@ class MongoClient {
   }
 }
 
-module.exports = MongoClient;
+module.exports = new MongoClient();

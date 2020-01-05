@@ -8,6 +8,6 @@ module.exports = ({query = {}, type}) => {
   } catch(err) {
       error = err;
   }
-  console.log('query!!!!', query)
+
   return error ? Promise.reject(error) : Model.findOne(query);
 }

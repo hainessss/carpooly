@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
-module.exports = ({type, query = {}, select = {}, sort = {}, paging = {}, explain}) => {
+module.exports = ({type, query = {}, select = {}, sort = {}, paging = {}}) => {
     let Model, error;
     const { page = 1, limit = 100 } = paging;
 
-    console.log('getting')
     try {
         Model = mongoose.model(type);
     } catch(err) {
@@ -18,5 +17,5 @@ module.exports = ({type, query = {}, select = {}, sort = {}, paging = {}, explai
         .skip((parseInt(page) - 1) * parseInt(limit))
         .limit(parseInt(limit));
 
-    return error ? Promise.reject(error) : (explain ? results.explain() : results);
+    return error ? Promise.reject(error) : results;
 }
