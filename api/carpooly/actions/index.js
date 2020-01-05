@@ -79,12 +79,12 @@ const handleAction = async ({ action, userId, responseUrl }) => {
   }
 };
 
-const respondIfCarpoolComplete = async ({ updatedCarpool, responseUrl, replaceOriginal }) => {
+const respondIfCarpoolComplete = async ({ updatedCarpool, responseUrl, replaceOriginal = false }) => {
   if (get(updatedCarpool, 'departingTime') && get(updatedCarpool, 'departingDate')) {
     await fetch(responseUrl, {
       method: 'POST',
       body: JSON.stringify(carpoolBlock({ carpool: updatedCarpool, replaceOriginal }))
-    }).then(result => result.json()).then(res => console.log(res)).catch(err => console.log('slack err', err))
+    }).then(result => result.json()).then(res => console.log(res));
   }
 
   return { "success": "true" };
