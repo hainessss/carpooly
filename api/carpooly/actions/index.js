@@ -63,6 +63,10 @@ const handleAction = async ({ action, userId, responseUrl }) => {
         ? [...passengers, userId]
         : passengers.filter(u => u !== userId);
 
+      if (newPassengers.length > carpool.seatsAvailable) {
+        return res.status(422).send({ "message": "This carpool is full." });
+      }
+
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
       }});
