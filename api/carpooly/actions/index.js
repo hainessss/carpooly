@@ -58,7 +58,7 @@ const handleAction = async ({ action, userId, responseUrl }) => {
 
       return respondIfCarpoolComplete({ updatedCarpool, userId, responseUrl });
     case actionIds.TOGGLE_PASSENGER:
-      const hoppingOn = get(action, 'value');
+      const hoppingOn = get(action, 'value') === "true";
       const newPassengers = hoppingOn 
         ? [...passengers, userId]
         : passengers.filter(u => u !== userId);

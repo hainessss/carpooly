@@ -35,7 +35,7 @@ module.exports = ({ carpool, userId: actionUserId }) => {
             "text": `${isInCar ? 'Hop out' : 'Hop in'}`,
             "emoji": true
           },
-          "value": "true"
+          "value": `${isInCar ? 'false' : 'true'}`
         }
       ]
     }
