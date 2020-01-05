@@ -50,11 +50,11 @@ module.exports = ({ carpool, replaceOriginal = false }) => {
     }
   ];
 
-  const passengerBlocks = passengers.map(userId => ({
+  const passengerBlocks = passengers.map(passenger => ({
     "type": "section",
     "text": {
       "type": "mrkdwn",
-      "text": `<@${userId}> joined this carpool. :seedling: :sparkles:`
+      "text": `<@${passenger}> joined this carpool. :seedling: :sparkles:`
     }
   }));
 
