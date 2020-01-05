@@ -27,7 +27,7 @@ module.exports = ({ carpool, replaceOriginal = false }) => {
       "elements": [
         {
           "type": "button",
-          "action_id": "toggle-passenger",
+          "action_id": "add-passenger",
           "text": {
             "type": "plain_text",
             "text": "Hop in",
@@ -37,7 +37,7 @@ module.exports = ({ carpool, replaceOriginal = false }) => {
         },
         {
           "type": "button",
-          "action_id": "toggle-passenger",
+          "action_id": "remove-passenger",
           "style": "danger",
           "text": {
             "type": "plain_text",

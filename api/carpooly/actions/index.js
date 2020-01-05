@@ -9,7 +9,8 @@ const getLastCarpool = require('../../../utils/getLastCarpool');
 const actionIds = {
   SET_DATE: 'select-date',
   SET_TIME: 'select-time',
-  TOGGLE_PASSENGER: 'toggle-passenger'
+  ADD_PASSENGER: 'add-passenger',
+  REMOVE_PASSENGER: 'remove-passenger'
 };
 
 client.connect(process.env.MONGO_URI);
@@ -57,15 +58,24 @@ const handleAction = async ({ action, userId, responseUrl }) => {
       }});
 
       return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
-    case actionIds.TOGGLE_PASSENGER:
-      const hoppingOn = get(action, 'value') === "true";
-      const newPassengers = hoppingOn 
-        ? [...passengers, userId]
-        : passengers.filter(id => id !== userId);
+    case actionIds.ADD_PASSENGER:
+      const newPassengers = [...passengers, userId]
 
       if (newPassengers.length > seatsAvailable) {
         return;
       }
+
+      updatedCarpool = await updateCarpool({ _id, update: {
+        passengers: newPassengers
+      }});
+      
+      return respondIfCarpoolComplete({
+        updatedCarpool,
+        replaceOriginal: true,
+        responseUrl
+      });
+    case actionIds.REMOVE_PASSENGER:
+      const newPassengers = passengers.filter(id => id !== userId);
 
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
