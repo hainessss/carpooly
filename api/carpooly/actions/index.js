@@ -62,9 +62,9 @@ const handleAction = async ({ action, userId, responseUrl }) => {
     case actionIds.ADD_PASSENGER:
       newPassengers = [...passengers, userId]
 
-      if (newPassengers.length > seatsAvailable) {
-        return;
-      }
+      // if (newPassengers.length > seatsAvailable) {
+      //   return;
+      // }
 
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
