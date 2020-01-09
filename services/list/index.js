@@ -1,9 +1,9 @@
 const moment = require('moment');
 
 const getUpcomingCarpools = require('../../utils/get-upcoming-carpools');
-const TextSection = require('../../blocks/text-section.block');
-const ButtonGroup = require('../../blocks/button-group.block');
-const ImageBlock = require('../../blocks/image.block');
+const TextSection = require('../../blocks/text-section.block.js');
+const ButtonGroup = require('../../blocks/button-group.block.js');
+const ImageBlock = require('../../blocks/image.block.js');
 const slackResponse = require('../../utils/slack-response');
 
 module.exports = async () => {

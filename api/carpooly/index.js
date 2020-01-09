@@ -5,7 +5,7 @@ const ErrorMessage = require('../../blocks/error-message.block.js');
 const DatePicker = require('../../blocks/date-picker.block.js');
 const TimePicker = require('../../blocks/time-picker.block.js');
 const ImageBlock = require('../../blocks/image.block.js');
-const ButtonGroup = require('../../blocks/button-group.block');
+const ButtonGroup = require('../../blocks/button-group.block.js');
 
 const client = require('../../utils/mongo-client');
 const slackResponse = require('../../utils/slack-response');

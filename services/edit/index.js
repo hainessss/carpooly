@@ -1,10 +1,10 @@
 const getLastCarpool = require('../../utils/get-last-carpool');
 const slackResponse = require('../../utils/slack-response');
-const TextSection = require('../../blocks/text-section.block');
-const DatePicker = require('../../blocks/date-picker.block');
-const TimePicker = require('../../blocks/time-picker.block');
-const ImageBlock = require('../../blocks/image.block');
-const ButtonGroup = require('../../blocks/button-group.block');
+const TextSection = require('../../blocks/text-section.block.js');
+const DatePicker = require('../../blocks/date-picker.block.js');
+const TimePicker = require('../../blocks/time-picker.block.js');
+const ImageBlock = require('../../blocks/image.block.js');
+const ButtonGroup = require('../../blocks/button-group.block.js');
 
 module.exports = async ({ body }) => {
   const { user_id } = body;

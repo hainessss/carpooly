@@ -1,4 +1,4 @@
-const Help = require('../../blocks/Help.block');
+const Help = require('../../blocks/Help.block.js');
 const slackResponse = require('../../utils/slack-response');
 
 module.exports = () => {

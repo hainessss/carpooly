@@ -1,8 +1,8 @@
 const getLastCarpool = require('../../utils/get-last-carpool');
 const slackResponse = require('../../utils/slack-response');
-const TextSection = require('../../blocks/text-section.block');
-const ImageBlock = require('../../blocks/image.block');
-const ButtonGroup = require('../../blocks/button-group.block');
+const TextSection = require('../../blocks/text-section.block.js');
+const ImageBlock = require('../../blocks/image.block.js');
+const ButtonGroup = require('../../blocks/button-group.block.js');
 const client = require('../../utils/mongo-client');
 
 module.exports = async ({ body }) => {
