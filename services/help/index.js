@@ -1,4 +1,5 @@
 const Help = require('../../blocks/help.block.js');
+const ButtonGroup = require('../../blocks/button-group.block.js');
 const slackResponse = require('../../utils/slack-response');
 
 module.exports = () => {
@@ -23,7 +24,16 @@ module.exports = () => {
 
   return slackResponse({
     blocks: [
-      new Help({ commands })
+      new Help({ commands }),
+      new ButtonGroup({
+        id: 'close',
+        buttons: [
+          {
+            text: 'Dismiss',
+            actionId: `close-list`,
+          }
+        ]
+      })
     ]
   });
 };
