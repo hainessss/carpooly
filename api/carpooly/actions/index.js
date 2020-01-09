@@ -166,7 +166,7 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
         body: JSON.stringify(slackResponse({
           replaceOriginal: 'true',
           responseType: 'in_channel',
-          blocks: carpoolBlocks(updatedCarpool)
+          blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
         }))
       });
     case actionIds.REMOVE_PASSENGER:
@@ -192,7 +192,7 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
         body: JSON.stringify(slackResponse({
           replaceOriginal: 'true',
           responseType: 'in_channel',
-          blocks: carpoolBlocks(updatedCarpool)
+          blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
         }))
       });
   }
