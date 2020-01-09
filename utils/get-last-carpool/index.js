@@ -1,4 +1,4 @@
-const client = require('../../mongo-client');
+const client = require('../mongo-client');
 const get = require('lodash/get');
 
 module.exports = (userId) => {

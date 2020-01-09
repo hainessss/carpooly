@@ -2,6 +2,7 @@
   "version": 2,
   "name": "carpooly",
   "env": {
-    "MONGO_URI": "@carpooly-mongo-uri"
+    "MONGO_URI": "@carpooly-mongo-uri",
+    "SLACK_TOKEN": "@slack-token"
   }
 }

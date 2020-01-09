@@ -2,74 +2,172 @@ const fetch = require('isomorphic-unfetch');
 const get = require('lodash/get');
 const moment = require('moment');
 
-const carpoolBlock = require('./carpool.block.js');
-const client = require('../../../mongo-client');
-const getLastCarpool = require('../../../utils/getLastCarpool');
+const TextSection = require('../../../blocks/text-section.block.js');
+const ButtonGroup = require('../../../blocks/button-group.block.js');
+const client = require('../../../utils/mongo-client');
+const slackResponse = require('../../../utils/slack-response');
+const findCarpoolById = require('../../../utils/find-carpool-by-id');
 
 const actionIds = {
-  SET_DATE: 'select-date',
-  SET_TIME: 'select-time',
+  SELECT_DATE: 'select-date',
+  SELECT_TIME: 'select-time',
+  UPDATE_DATE: 'update-date',
+  UPDATE_TIME: 'update-time',
+  SUBMIT_UPDATE: 'submit-update',
   ADD_PASSENGER: 'add-passenger',
-  REMOVE_PASSENGER: 'remove-passenger'
+  REMOVE_PASSENGER: 'remove-passenger',
+  CLOSE_LIST: 'close-list'
 };
 
 client.connect(process.env.MONGO_URI);
 
 module.exports = async (req, res) => {
   const payload = JSON.parse(req.body.payload);
+  const token = payload.token;
   const action = get(payload, 'actions[0]', {});
   const responseUrl = payload.response_url;
   const userId = payload.user.id;
 
   try {
-    const response = await handleAction({
+    await handleAction({
       action,
       userId,
-      responseUrl
+      responseUrl,
+      token
     });
 
-    res.status(200).send(response);
+    res.status(200).send();
   } catch (err) {
     console.log(err);
     res.status(500).send();
   }
 };
 
-const handleAction = async ({ action, userId, responseUrl }) => {
-  const { _id, passengers, seatsAvailable } = await getLastCarpool(userId);
+const handleAction = async ({ action, userId, responseUrl, token }) => {
+  const { action_id } = action;
+  const [actionType, carpoolId, channel] = action_id.split(":");
 
-  const actionId = action.action_id;
-  let updatedCarpool;
-  let newPassengers;
+  const carpool = await findCarpoolById(carpoolId);
 
-  switch (actionId) {
-    case actionIds.SET_DATE:
-      const departingDate = moment(get(action, 'selected_date')).toISOString();
+  if (!carpool && actionType !== actionIds.CLOSE_LIST) {
+    return handleResponse({
+      responseUrl,
+      body: JSON.stringify(slackResponse({
+        replaceOriginal: 'true',
+        responseType: channel ? 'ephemeral' : 'in_channel',
+        blocks: [
+          new TextSection({
+            text: 'This carpool has been deleted by its creator. :dizzy_face:'
+          }),
+          new ButtonGroup({
+            id: 'close',
+            buttons: [
+              {
+                text: 'Dismiss',
+                actionId: `close-list`,
+              }
+            ]
+          })
+        ]
+      }))
+    });
+  }
+
+  const { _id, passengers } = carpool || {};
+
+  let updatedCarpool, newPassengers, departingDate, departingTime;
+  
+  switch (actionType) {
+    case actionIds.SELECT_DATE:
+      departingDate = moment(get(action, 'selected_date')).toISOString();
 
       updatedCarpool = await updateCarpool({ _id, update: {
         departingDate
       }});
 
-      return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
-    case actionIds.SET_TIME:
-      const departingTime = get(action, 'selected_option.value');
+      if (isCarpoolComplete(updatedCarpool)) {
+        return handleResponse({
+          responseUrl,
+          body: JSON.stringify(slackResponse({
+            replaceOriginal: 'true',
+            responseType: 'in_channel',
+            blocks: carpoolBlocks(updatedCarpool)
+          }))
+        });
+      }
+    case actionIds.SELECT_TIME:
+      departingTime = get(action, 'selected_option.value');
       
       updatedCarpool = await updateCarpool({ _id, update: {
         departingTime
       }});
 
-      return respondIfCarpoolComplete({ updatedCarpool, responseUrl });
+      if (isCarpoolComplete(updatedCarpool)) {
+        return handleResponse({
+          responseUrl,
+          body: JSON.stringify(slackResponse({
+            replaceOriginal: 'true',
+            responseType: 'in_channel',
+            blocks: carpoolBlocks(updatedCarpool)
+          }))
+        });
+      }
+    case actionIds.UPDATE_TIME:
+      departingTime = get(action, 'selected_option.value');
+    
+      return updateCarpool({ _id, update: {
+        departingTime
+      }});
+    case actionIds.UPDATE_DATE:
+      departingDate = moment(get(action, 'selected_date')).toISOString();
+
+      return await updateCarpool({ _id, update: {
+        departingDate
+      }});
+    case actionIds.SUBMIT_UPDATE:
+      handleResponse({
+        responseUrl,
+        body: JSON.stringify({ delete_original: 'true' })
+      });
+
+      return handleResponse({
+        body: JSON.stringify({
+          as_user: false,
+          text: 'update',
+          channel,
+          blocks: carpoolBlocks(carpool, { isUpdate: true })
+        })
+      });
+    case actionIds.CLOSE_LIST:
+      return handleResponse({
+        responseUrl,
+        body: JSON.stringify({ delete_original: 'true' })
+      });
     case actionIds.ADD_PASSENGER:
       newPassengers = !passengers.includes(userId) ? [...passengers, userId] : passengers;
 
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
       }});
-      
-      return respondIfCarpoolComplete({
-        updatedCarpool,
-        replaceOriginal: true,
-        responseUrl
+
+      if (channel) {
+        return handleResponse({
+          body: JSON.stringify({
+            as_user: false,
+            text: 'update',
+            channel,
+            blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
+          })
+        });
+      }
+
+      return handleResponse({
+        responseUrl,
+        body: JSON.stringify(slackResponse({
+          replaceOriginal: 'true',
+          responseType: 'in_channel',
+          blocks: carpoolBlocks(updatedCarpool)
+        }))
       });
     case actionIds.REMOVE_PASSENGER:
       newPassengers = passengers.filter(id => id !== userId);
@@ -77,24 +175,82 @@ const handleAction = async ({ action, userId, responseUrl }) => {
       updatedCarpool = await updateCarpool({ _id, update: {
         passengers: newPassengers
       }});
-      
-      return respondIfCarpoolComplete({
-        updatedCarpool,
-        replaceOriginal: true,
-        responseUrl
+
+      if (channel) {  
+        return handleResponse({
+          body: JSON.stringify({
+            as_user: false,
+            text: 'update',
+            channel,
+            blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
+          })
+        });
+      }
+
+      return handleResponse({
+        responseUrl,
+        body: JSON.stringify(slackResponse({
+          replaceOriginal: 'true',
+          responseType: 'in_channel',
+          blocks: carpoolBlocks(updatedCarpool)
+        }))
       });
   }
 };
 
-const respondIfCarpoolComplete = async ({ updatedCarpool, responseUrl, replaceOriginal = false }) => {
-  if (get(updatedCarpool, 'departingTime') && get(updatedCarpool, 'departingDate')) {
-    await fetch(responseUrl, {
-      method: 'POST',
-      body: JSON.stringify(carpoolBlock({ carpool: updatedCarpool, replaceOriginal }))
-    }).then(result => result.json()).then(res => console.log(res));
-  }
+const isCarpoolComplete = (carpool) => get(carpool, 'departingTime') && get(carpool, 'departingDate');
 
-  return { "success": "true" };
+const handleResponse = ({ responseUrl = 'https://slack.com/api/chat.postMessage', body }) => {
+  return fetch(responseUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.SLACK_TOKEN}`
+    },
+    body
+  }).then(response => response.json());
+};
+
+const passengerBlocks = (passengers) => {
+  return passengers.map(passenger => new TextSection({
+    text: `<@${passenger}> joined this carpool. :seedling: :sparkles:`
+  }));
+};
+
+const carpoolBlocks = (carpool, options = { isUpdate: false }) => {
+  const { isUpdate } = options;
+
+  const {
+    _id,
+    userId,
+    origin,
+    destination,
+    departingDate,
+    departingTime,
+    passengers = [],
+    seatsAvailable
+  } = carpool;
+
+  const formattedDate = moment(departingDate).format('dddd, MMM Do');
+
+  const intro = isUpdate ? '*UPDATE:*' : '<!here>';
+
+  const blocks = [
+    new TextSection({
+      text: `${intro} :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDate}* at *${departingTime}*. There are *${seatsAvailable - passengers.length}* seats available.`
+    }),
+    new ButtonGroup({
+      id: `toggle-passenger`,
+      buttons: [
+        { text: 'Hop in', actionId: `add-passenger:${_id}`, value: "true" },
+        { text: 'Hop out', actionId: `remove-passenger:${_id}`, value: "false" }
+      ]
+    })
+  ];
+
+  return passengers.length 
+    ? [blocks[0], ...passengerBlocks(passengers), blocks[1]]
+    : blocks;
 };
 
 const updateCarpool = async ({ _id, update }) => {

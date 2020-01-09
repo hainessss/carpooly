@@ -18,6 +18,10 @@ class MongoClient {
     return this.fetch('getOne', args);
   }
 
+  deleteOne(args) {
+    return this.fetch('deleteOne', args);
+  }
+
   update(args) {
     return this.fetch('update', args);
   }

@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const Carpool = new Schema({
   userName: String,
   userId: String,
+  channel: String,
   origin: {
     type: String,
     required: true
