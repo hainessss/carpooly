@@ -15,7 +15,7 @@ module.exports = async ({ body }) => {
     return slackResponse({
       blocks: [
         new TextSection({
-          text: 'You have no carpools to delete.'
+          text: 'You have no carpools to edit.'
         }),
         new ImageBlock({
           url: 'https://media.giphy.com/media/Vd8kwqv2aq6kUKpl70/giphy.gif',
