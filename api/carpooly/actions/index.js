@@ -79,7 +79,7 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
 
   const { _id, passengers } = carpool || {};
 
-  let updatedCarpool, newPassengers, departingDate, departingTime; //, returningDate, returningTime;
+  let updatedCarpool, newPassengers, departingDate, departingTime, returningDate, returningTime;
   
   switch (actionType) {
     case actionIds.SELECT_DEPARTING_DATE:
