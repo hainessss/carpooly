@@ -163,11 +163,11 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
 
       return handleResponse({
         responseUrl,
-        body: JSON.stringify(slackResponse({
-          replaceOriginal: 'true',
-          responseType: 'in_channel',
+        body: JSON.stringify({
+          replace_original: 'true',
+          response_type: 'in_channel',
           blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
-        }))
+        })
       });
     case actionIds.REMOVE_PASSENGER:
       newPassengers = passengers.filter(id => id !== userId);
@@ -189,11 +189,11 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
 
       return handleResponse({
         responseUrl,
-        body: JSON.stringify(slackResponse({
-          replaceOriginal: 'true',
-          responseType: 'in_channel',
+        body: JSON.stringify({
+          replace_original: 'true',
+          response_type: 'in_channel',
           blocks: carpoolBlocks(updatedCarpool, { isUpdate: true })
-        }))
+        })
       });
   }
 };
