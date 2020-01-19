@@ -85,10 +85,16 @@ module.exports = async (req, res) => {
               text: `Enter the details of your carpool leaving from ${origin} to ${destination}.`
             }),
             new DatePicker({
-              actionId: `select-date:${carpoolId}`
+              actionId: `select-departing-date:${carpoolId}`
             }),
             new TimePicker({
-              actionId: `select-time:${carpoolId}`
+              actionId: `select-departing-time:${carpoolId}`
+            }),
+            new DatePicker({
+              actionId: `select-returning-date:${carpoolId}`
+            }),
+            new TimePicker({
+              actionId: `select-returning-time:${carpoolId}`
             })
           ]
         })

@@ -41,11 +41,14 @@ module.exports = async () => {
       destination,
       departingDate,
       departingTime,
+      returningDate, 
+      returningTime,
       passengers = [],
       seatsAvailable
     } = carpool;
 
-    const formattedDate = moment(departingDate).format('dddd, MMM Do');
+    const formattedDepartedDate = moment(departingDate).format('dddd, MMM Do');
+    const formattedReturningDate = moment(returningDate).format('dddd, MMM Do');
 
     const passengerBlocks = (passengers) => {
       return passengers.map(passenger => new TextSection({
@@ -55,7 +58,7 @@ module.exports = async () => {
 
     const blocks = [
       new TextSection({
-        text: `*${index + 1}.*  :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDate}* at *${departingTime}*. There are *${seatsAvailable - passengers.length}* seats available.`
+        text: `*${index + 1}.*  :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDate}* at *${departingTime}* and returning on *${returningDate} at ${returningTime}. There are *${seatsAvailable - passengers.length}* seats available.`
       }),
       new ButtonGroup({
         id: `toggle-passenger-${index}`,

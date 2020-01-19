@@ -3,7 +3,7 @@ module.exports = function DatePicker({ actionId }) {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "Pick a departure date."
+      text: "Pick a " + promptText + " date."
     },
     accessory: {
       type: "datepicker",
