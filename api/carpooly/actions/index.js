@@ -284,13 +284,14 @@ const carpoolBlocks = (carpool, options = { isUpdate: false }) => {
     seatsAvailable
   } = carpool;
 
-  const formattedDate = moment(departingDate).format('dddd, MMM Do');
+  const formattedDepartingDate = moment(departingDate).format('dddd, MMM Do');
+  const formattedReturnDate = moment(returningDate).format('dddd, MMM Do');
 
   const intro = isUpdate ? '*UPDATE:*' : '<!here>';
 
   const blocks = [
     new TextSection({
-      text: `${intro} :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDate}* at *${departingTime}* and returning on ${returningDate} at ${returningTime}. There are *${seatsAvailable - passengers.length}* seats available.`
+      text: `${intro} :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDepartingDate}* at *${departingTime}* and returning on ${formattedReturningDate} at ${returningTime}. There are *${seatsAvailable - passengers.length}* seats available.`
     }),
     new ButtonGroup({
       id: `toggle-passenger`,
