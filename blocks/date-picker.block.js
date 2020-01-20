@@ -1,9 +1,9 @@
-module.exports = function DatePicker({ actionId }) {
+module.exports = function DatePicker({ actionId, promptText }) {
   return {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "Pick a " + promptText + " date."
+      text: promptText
     },
     accessory: {
       type: "datepicker",
