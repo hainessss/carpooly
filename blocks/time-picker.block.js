@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-module.exports = function TimePicker({ actionId }) {
+module.exports = function TimePicker({ actionId, promptText }) {
   const timeOptions = new Array(23).fill(null).map((value, index) => ({
     "text": {
       "type": "plain_text",
@@ -14,7 +14,7 @@ module.exports = function TimePicker({ actionId }) {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: "Pick an item from the dropdown list"
+      text: promptText
     },
     accessory: {
       type: "static_select",

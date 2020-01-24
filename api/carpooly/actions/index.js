@@ -9,10 +9,14 @@ const slackResponse = require('../../../utils/slack-response');
 const findCarpoolById = require('../../../utils/find-carpool-by-id');
 
 const actionIds = {
-  SELECT_DATE: 'select-date',
-  SELECT_TIME: 'select-time',
-  UPDATE_DATE: 'update-date',
-  UPDATE_TIME: 'update-time',
+  SELECT_DEPARTING_DATE: 'select-departing-date',
+  SELECT_DEPARTING_TIME: 'select-departing-time',
+  SELECT_RETURNING_DATE: 'select-returning-date',
+  SELECT_RETURNING_TIME: 'select-returning-time',
+  UPDATE_DEPARTING_DATE: 'update-departing-date',
+  UPDATE_DEPARTING_TIME: 'update-departing-time',
+  UPDATE_RETURNING_DATE: 'update-returning-date',
+  UPDATE_RETURNING_TIME: 'update-returning-time',
   SUBMIT_UPDATE: 'submit-update',
   ADD_PASSENGER: 'add-passenger',
   REMOVE_PASSENGER: 'remove-passenger',
@@ -75,10 +79,10 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
 
   const { _id, passengers } = carpool || {};
 
-  let updatedCarpool, newPassengers, departingDate, departingTime;
+  let updatedCarpool, newPassengers, departingDate, departingTime, returningDate, returningTime;
   
   switch (actionType) {
-    case actionIds.SELECT_DATE:
+    case actionIds.SELECT_DEPARTING_DATE:
       departingDate = moment(get(action, 'selected_date')).toISOString();
 
       updatedCarpool = await updateCarpool({ _id, update: {
@@ -95,7 +99,7 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
           }))
         });
       }
-    case actionIds.SELECT_TIME:
+    case actionIds.SELECT_DEPARTING_TIME:
       departingTime = get(action, 'selected_option.value');
       
       updatedCarpool = await updateCarpool({ _id, update: {
@@ -112,18 +116,65 @@ const handleAction = async ({ action, userId, responseUrl, token }) => {
           }))
         });
       }
-    case actionIds.UPDATE_TIME:
+      case actionIds.SELECT_RETURNING_DATE:
+        returningDate = moment(get(action, 'selected_date')).toISOString();
+  
+        updatedCarpool = await updateCarpool({ _id, update: {
+          returningDate
+        }});
+  
+        if (isCarpoolComplete(updatedCarpool)) {
+          return handleResponse({
+            responseUrl,
+            body: JSON.stringify(slackResponse({
+              replaceOriginal: 'true',
+              responseType: 'in_channel',
+              blocks: carpoolBlocks(updatedCarpool)
+            }))
+          });
+        }
+      case actionIds.SELECT_RETURNING_TIME:
+        returningTime = get(action, 'selected_option.value');
+        
+        updatedCarpool = await updateCarpool({ _id, update: {
+          returningTime
+        }});
+  
+        if (isCarpoolComplete(updatedCarpool)) {
+          return handleResponse({
+            responseUrl,
+            body: JSON.stringify(slackResponse({
+              replaceOriginal: 'true',
+              responseType: 'in_channel',
+              blocks: carpoolBlocks(updatedCarpool)
+            }))
+          });
+        }
+  
+    case actionIds.UPDATE_DEPARTING_TIME:
       departingTime = get(action, 'selected_option.value');
     
       return updateCarpool({ _id, update: {
         departingTime
       }});
-    case actionIds.UPDATE_DATE:
+    case actionIds.UPDATE_DEPARTING_DATE:
       departingDate = moment(get(action, 'selected_date')).toISOString();
 
       return await updateCarpool({ _id, update: {
         departingDate
       }});
+      case actionIds.UPDATE_RETURNING_TIME:
+        returningTime = get(action, 'selected_option.value');
+      
+        return updateCarpool({ _id, update: {
+          returningTime
+        }});
+      case actionIds.UPDATE_RETURNING_DATE:
+        returningDate = moment(get(action, 'selected_date')).toISOString();
+  
+        return await updateCarpool({ _id, update: {
+          returningDate
+        }});
     case actionIds.SUBMIT_UPDATE:
       handleResponse({
         responseUrl,
@@ -227,17 +278,20 @@ const carpoolBlocks = (carpool, options = { isUpdate: false }) => {
     destination,
     departingDate,
     departingTime,
+    returningDate,
+    returningTime,
     passengers = [],
     seatsAvailable
   } = carpool;
 
-  const formattedDate = moment(departingDate).format('dddd, MMM Do');
+  const formattedDepartingDate = moment(departingDate).format('dddd, MMM Do');
+  const formattedReturnDate = moment(returningDate).format('dddd, MMM Do');
 
   const intro = isUpdate ? '*UPDATE:*' : '<!here>';
 
   const blocks = [
     new TextSection({
-      text: `${intro} :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDate}* at *${departingTime}*. There are *${seatsAvailable - passengers.length}* seats available.`
+      text: `${intro} :car: beep beep! <@${userId}> has a carpool leaving from *${origin}* to *${destination}* on *${formattedDepartingDate}* at *${departingTime}* and returning on ${formattedReturningDate} at ${returningTime}. There are *${seatsAvailable - passengers.length}* seats available.`
     }),
     new ButtonGroup({
       id: `toggle-passenger`,

@@ -15,6 +15,8 @@ const Carpool = new Schema({
     type:String,
     required: true
   },
+  returningDate: Date,
+  returningTime: String,
   seatsAvailable: { 
     type: Number,
     required: true
